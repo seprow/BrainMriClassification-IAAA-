@@ -131,9 +131,9 @@ class VASNet(nn.Module):
 
 ''' SimpleVASNet '''
 
-class SpatialAttentionBlock3D(nn.Module):
+class SimpleSpatialAttentionBlock3D(nn.Module):
     def __init__(self, channels):
-        super(SpatialAttentionBlock3D, self).__init__()
+        super(SimpleSpatialAttentionBlock3D, self).__init__()
         # Set in_channels to channels to match the expected number of channels in the input
         self.conv = nn.Conv3d(in_channels=channels, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
         nn.init.kaiming_normal_(self.conv.weight, mode='fan_out', nonlinearity='relu')
@@ -151,19 +151,19 @@ class SimpleVASNet(nn.Module):
         # Convolution Block 1
         self.conv1 = nn.Conv3d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1)  # Input channels set to 1
         self.bn1 = nn.BatchNorm3d(32)
-        self.sab1 = SpatialAttentionBlock3D(32)
+        self.sab1 = SimpleSpatialAttentionBlock3D(32)
         self.pool1 = nn.MaxPool3d(kernel_size=2, stride=2)
 
         # Convolution Block 2
         self.conv2 = nn.Conv3d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm3d(64)
-        self.sab2 = SpatialAttentionBlock3D(64)
+        self.sab2 = SimpleSpatialAttentionBlock3D(64)
         self.pool2 = nn.MaxPool3d(kernel_size=2, stride=2)
 
         # Convolution Block 3
         self.conv3 = nn.Conv3d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
         self.bn3 = nn.BatchNorm3d(128)
-        self.sab3 = SpatialAttentionBlock3D(128)
+        self.sab3 = SimpleSpatialAttentionBlock3D(128)
         self.pool3 = nn.MaxPool3d(kernel_size=2, stride=2)
 
         # Bottleneck Block
