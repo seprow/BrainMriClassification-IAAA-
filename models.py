@@ -210,7 +210,7 @@ class SimpleVASNet(nn.Module):
     def freeze_except_fc(self):
         # Freeze all layers except the fully connected layer
         for name, param in self.named_parameters():
-            if "fc" not in name:  # Check if 'fc' is not in the layer name
+            if "fc" not in name: 
                 param.requires_grad = False
   
 
