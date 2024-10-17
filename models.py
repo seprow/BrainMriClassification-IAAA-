@@ -131,9 +131,9 @@ class VASNet(nn.Module):
 
 ''' SimpleVASNet '''
 
-class SimpleSpatialAttentionBlock3D(nn.Module):
+class SpatialAttentionBlock3D(nn.Module):
     def __init__(self, channels):
-        super(SimpleSpatialAttentionBlock3D, self).__init__()
+        super(SpatialAttentionBlock3D, self).__init__()
         # Set in_channels to channels to match the expected number of channels in the input
         self.conv = nn.Conv3d(in_channels=channels, out_channels=1, kernel_size=3, stride=1, padding=1, bias=False)
         nn.init.kaiming_normal_(self.conv.weight, mode='fan_out', nonlinearity='relu')
@@ -151,19 +151,19 @@ class SimpleVASNet(nn.Module):
         # Convolution Block 1
         self.conv1 = nn.Conv3d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1)  # Input channels set to 1
         self.bn1 = nn.BatchNorm3d(32)
-        self.sab1 = SimpleSpatialAttentionBlock3D(32)
+        self.sab1 = SpatialAttentionBlock3D(32)
         self.pool1 = nn.MaxPool3d(kernel_size=2, stride=2)
 
         # Convolution Block 2
         self.conv2 = nn.Conv3d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.bn2 = nn.BatchNorm3d(64)
-        self.sab2 = SimpleSpatialAttentionBlock3D(64)
+        self.sab2 = SpatialAttentionBlock3D(64)
         self.pool2 = nn.MaxPool3d(kernel_size=2, stride=2)
 
         # Convolution Block 3
         self.conv3 = nn.Conv3d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1)
         self.bn3 = nn.BatchNorm3d(128)
-        self.sab3 = SimpleSpatialAttentionBlock3D(128)
+        self.sab3 = SpatialAttentionBlock3D(128)
         self.pool3 = nn.MaxPool3d(kernel_size=2, stride=2)
 
         # Bottleneck Block
@@ -207,12 +207,23 @@ class SimpleVASNet(nn.Module):
 
         return x  # Return raw logits
     
+    def freeze_except_fc(self):
+        # Freeze all layers except the fully connected layer
+        for name, param in self.named_parameters():
+            if "fc" not in name:  # Check if 'fc' is not in the layer name
+                param.requires_grad = False
+  
+
+#model = SimpleVASNet(num_classes=1)
+#model.freeze_except_fc()
+    
 ##################################################################################################
 
 ''' Fine Tuning ResNet n last layers '''
 
 class ResNet3D(nn.Module):
     def __init__(self):
+        super(ResNet3D, self).__init__()
         self.resnet10 = models.video.r3d_18(pretrained=True)
 
         # Modify the first conv layer to accept 1-channel input
@@ -280,6 +291,7 @@ class ResNet3D(nn.Module):
 
 class Cerberus(nn.Module):
     def __init__(self):
+        super(Cerberus, self).__init__()
 
         # Initialize the ResNet3D model
         self.resnet10 = models.video.r3d_18(pretrained=True)
